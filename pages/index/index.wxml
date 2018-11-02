@@ -1,2 +1,24 @@
-<view class="temp">12°</view>
-<view class="weather">晴天</view>
+<view class="weather-wrapper">
+  <view class="temp">{{ nowTemp }}</view>
+  <view class="weather">{{ nowWeather }}</view>
+  <!-- mode="scaleToFill"为默认值，为了代码的可读性还是将它声明了出来。
+  我们从官方文档中可以看到，scaleToFill 的含义为
+  不保持纵横比缩放图片，使图片的宽高完全拉伸至填满 image 元素 -->
+  <image class="weather-bg" src="{{ nowWeatherbg }}" mode="scaleToFill"></image>
+</view>
+
+<view class="timetips">
+  <image class="timetips-icon" src="/images/time-icon.png"></image>
+  <view class="timetips-text">未来24小时天气预测</view>
+</view>
+
+<!-- scroll-view默认滑动为纵向，使用scroll-x改为横向 -->
+<scroll-view scroll-x>
+  <view class="forecast-list">
+    <view class="forecast-item" wx:for-items="{{hourlyWeather}}" wx:key="hourlyWeather">
+      <view class="forecast-time">{{item.time}}</view>
+      <image class="forecast-weather" src="{{item.iconPath}}"></image>
+      <view class="forecast-temp">{{item.temp}}</view>
+    </view>
+  </view>
+</scroll-view>
