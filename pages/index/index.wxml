@@ -5,6 +5,13 @@
   我们从官方文档中可以看到，scaleToFill 的含义为
   不保持纵横比缩放图片，使图片的宽高完全拉伸至填满 image 元素 -->
   <image class="weather-bg" src="{{ nowWeatherbg }}" mode="scaleToFill"></image>
+
+  <view class="day-weather" bindtap="onTapDayWeather">
+    <view class="today-text">{{todayData}}</view>
+    <view class="temp-text">{{todayTemp}}</view>
+    <image class="arrow-icon" src="/images/arrow.png"></image>
+  </view>
+
 </view>
 
 <view class="timetips">

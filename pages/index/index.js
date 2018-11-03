@@ -21,7 +21,9 @@ Page({
     nowTemp: '',
     nowWeather: '',
     nowWeatherbg: '',
-    hourlyWeather: []
+    hourlyWeather: [],
+    todayData: '',
+    todayTemp: ''
   },
   onPullDownRefresh(){
     this.getNow(()=>{
@@ -40,8 +42,10 @@ Page({
       },
       success (res) {
         let result = res.data.result
+        // console.log(result)
         MyThis.set_Now(result)
         MyThis.set_hourlyWeather(result)
+        MyThis.set_Today(result)
       },
       complete () {
         callback && callback()
@@ -70,7 +74,7 @@ Page({
     let forecast = result.forecast
     let nowHour = new Date().getHours()
     let hourlyWeather = []
-    for (let i = 0; i < 7; i += 1) {
+    for (let i = 0; i <= 7; i += 1) {
       hourlyWeather.push({
         time: (i * 3 + nowHour) % 24 + '时',
         iconPath: '/images/' + forecast[i].weather + '-icon.png',
@@ -80,6 +84,22 @@ Page({
     hourlyWeather[0].time = '现在'
     MyThis.setData({
       hourlyWeather: hourlyWeather
+    })
+  },
+
+  set_Today(result) {
+    let MyThis = this
+    let date = new Date()
+    MyThis.setData({
+      todayTemp: `${result.today.minTemp}°-${result.today.maxTemp}°`,
+      todayData: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} 今天`
+    })
+  },
+
+  onTapDayWeather() {
+    wx.showToast()
+    wx.navigateTo({
+      url: '/pages/list/list',
     })
   }
 })
