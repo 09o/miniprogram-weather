@@ -1,1 +1,5 @@
-# miniprogram-weather
+﻿# 微信小程序·天气应用
+
+----------
+
+跟随Udacity的微信小程序开发课程完成的一个简单demo
