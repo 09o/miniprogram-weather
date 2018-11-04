@@ -22,11 +22,8 @@ const UNPROMPTED = 0  // 未弹窗
 const UNAUTHORIZED = 1  // 已弹窗拒绝
 const AUTHORIZED = 2    // 已弹窗同意
 
-const UNPROMPTED_TIPS = "点击获取当前位置"  // 未弹窗
-const UNAUTHORIZED_TIPS = "点击开启位置权限"  // 已弹窗拒绝
-const AUTHORIZED_TIPS = ""  // 已弹窗同意
-
 Page({
+  // 所有的动态变量
   data: {
     nowTemp: '',
     nowWeather: '',
@@ -35,42 +32,54 @@ Page({
     todayData: '',
     todayTemp: '',
     city: '广州市',
-    locationAuthTypes: UNPROMPTED,
-    locationTipsText: UNPROMPTED_TIPS
+    locationAuthType: UNPROMPTED
   },
-
+  // 生命周期函数，在一开始会被调用
+  onLoad() {
+    let MyThis = this
+    this.qqmapsdk = new QQMapWX({
+      key: 'EAXBZ-33R3X-AA64F-7FIPQ-BY27J-5UF5B'
+    })
+    wx.getSetting({
+      success(res) {
+        let auth = res.authSetting['scope.userLocation']
+        MyThis.setData({
+          locationAuthType: auth ? AUTHORIZED : (auth == false) ? UNAUTHORIZED : UNPROMPTED,
+        })
+        if (auth) {
+          MyThis.getCityAndLocation()
+        } else {
+          MyThis.getNow()
+        }
+      }
+    })
+    this.getNow()
+  },
   // 下拉刷新
   onPullDownRefresh(){
     this.getNow(()=>{
       wx.stopPullDownRefresh()
     })
   },
-
-  onLoad() {
-    this.qqmapsdk = new QQMapWX({
-      key: 'EAXBZ-33R3X-AA64F-7FIPQ-BY27J-5UF5B'
-    })
-    this.getNow()
-  },
-
-  // 授权页面返回中教程所采用的方法，注意：需在app.js中添加代码 'APP({})'
-  onShow() {
-    let MyThis = this
-    wx.getSetting({
-      success (res) {
-        let auth = res.authSetting['scope.userLocation']
-        if (auth && MyThis.data.locationAuthTypes !== AUTHORIZED) {
-          // 权限从无到有
-          MyThis.setData({
-            locationAuthType: AUTHORIZED,
-            locationTipsText: AUTHORIZED_TIPS
-          })
-        MyThis.get_location()
-        }
-      }
-    })
-  },
-
+  // v1:授权页面返回中教程所采用的方法，注意：需在app.js中添加代码 'APP({})'
+  // 不建议使用
+  // onShow() {
+  //   let MyThis = this
+  //   wx.getSetting({
+  //     success (res) {
+  //       let auth = res.authSetting['scope.userLocation']
+  //       if (auth && MyThis.data.locationAuthType !== AUTHORIZED) {
+  //         // 权限从无到有
+  //         MyThis.setData({
+  //           locationAuthType: AUTHORIZED,
+  //           locationTipsText: AUTHORIZED_TIPS
+  //         })
+  //       MyThis.get_location()
+  //       }
+  //     }
+  //   })
+  // },
+  // 核心部分，用于获取网络的函数。在onLoad() onPullDownRefresh() getCityAndWeather()中都会被调用
   getNow(callback) {
     let MyThis = this
     wx.request({
@@ -90,7 +99,7 @@ Page({
       }  
     })
   },
-
+  // set_Now(obj) set_hourlyWeather(obj) set_Today(obj)会在getNow()返回结果后被调用
   set_Now(result) {
     let MyThis = this
     let temp = result.now.temp
@@ -105,7 +114,6 @@ Page({
       backgroundColor: weatherColorMap[weather]
     })
   },
-
   // set forecast
   set_hourlyWeather(result) {
     let MyThis = this
@@ -124,7 +132,6 @@ Page({
       hourlyWeather: hourlyWeather
     })
   },
-
   set_Today(result) {
     let MyThis = this
     let date = new Date()
@@ -133,47 +140,42 @@ Page({
       todayData: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} 今天`
     })
   },
-
-  // 跳转
+  // 跳转至第二页的点击响应函数
   onTapDayWeather() {
     wx.showToast()
     wx.navigateTo({
       url: '/pages/list/list?city=' + this.data.city
     })
   },
-
-  // 获取位置
+  // 点击获取位置时的响应函数
   onTapLocation() {
     let MyThis = this
+    // v2:授权页面返回中我所使用的方法，另外教程也更新了这种方法
+    if (MyThis.data.locationAuthType == 1) {
+      wx.openSetting({
+        success (res) {
+          let auth = res.authSetting['scope.userLocation']
+          if (auth == true) {
+            MyThis.setData({
+              locationAuthType: UNPROMPTED,
+            })
+          }
+        }
+      })
 
-    // 授权页面返回中我所使用的方法
-    // if (MyThis.data.locationAuthTypes == 1) {
-    //   wx.openSetting({
-    //     success (res) {
-    //       let auth = res.authSetting['scope.userLocation']
-    //       if (auth == true) {
-    //         MyThis.setData({
-    //           locationAuthTypes: UNPROMPTED,
-    //           locationTipsText: UNPROMPTED_TIPS
-    //         })
-    //       }
-    //     }
-    //   })
-
-    if (MyThis.data.locationAuthTypes == 1) {
-      wx.openSetting()
+    // if (MyThis.data.locationAuthType == 1) {
+    //   wx.openSetting()
     } else {
-      MyThis.get_location()
+      MyThis.getCityAndLocation()
     }
   },
-
-  get_location() {
+  // onTapLocation()&&onLoad()中被调用
+  getCityAndLocation() {
     let MyThis = this
     wx.getLocation({
       success: function (res) {
         MyThis.setData({
-          locationAuthTypes: AUTHORIZED,
-          locationTipsText: AUTHORIZED_TIPS
+          locationAuthType: AUTHORIZED
         })
         MyThis.qqmapsdk.reverseGeocoder({
           location: {
@@ -191,8 +193,7 @@ Page({
       },
       fail:function () {
         MyThis.setData({
-          locationAuthTypes: UNAUTHORIZED,
-          locationTipsText: UNAUTHORIZED_TIPS
+          locationAuthType: UNAUTHORIZED
         })
       }
     })

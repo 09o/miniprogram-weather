@@ -7,7 +7,10 @@
 .location-wrapper {
   margin-bottom: 60rpx;
   font-size: 30rpx;
-  line-height: 42rpx; 
+  line-height: 42rpx;
+  color: rgba(0, 0, 0, 0.5)!important;
+  border: none!important;
+  padding: 0!important;
 }
 
 .location {
