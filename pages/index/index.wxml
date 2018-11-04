@@ -1,4 +1,12 @@
 <view class="weather-wrapper">
+  <view class="location-wrapper" bindtap="onTapLocation">
+    <view class="location">
+      <image class="location-icon" src="/images/location-icon.png"></image>
+      <view class="location-text">{{city}}</view>
+    </view>    
+    <view class="location-tips">{{locationTipsText}}</view>
+  </view>
+
   <view class="temp">{{ nowTemp }}</view>
   <view class="weather">{{ nowWeather }}</view>
   <!-- mode="scaleToFill"为默认值，为了代码的可读性还是将它声明了出来。
@@ -6,6 +14,7 @@
   不保持纵横比缩放图片，使图片的宽高完全拉伸至填满 image 元素 -->
   <image class="weather-bg" src="{{ nowWeatherbg }}" mode="scaleToFill"></image>
 
+  <!-- 跳转到其他页面 -->
   <view class="day-weather" bindtap="onTapDayWeather">
     <view class="today-text">{{todayData}}</view>
     <view class="temp-text">{{todayTemp}}</view>
